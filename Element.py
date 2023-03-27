@@ -1,5 +1,4 @@
-from Coord import Coord
-
+from Room import Room
 class Element(object):
     def __init__(self,name,abbrv=None):
         self._name=name

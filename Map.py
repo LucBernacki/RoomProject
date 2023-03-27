@@ -128,7 +128,7 @@ class Map(object):
             for case in range(1,start.x-end.x):
                 startX.x=start.x-case
                 self.dig(startX)
- 
+
         
     def move(self,objet,way):
         dep=Coord(self.pos(objet).x+way.x,self.pos(objet).y+way.y)

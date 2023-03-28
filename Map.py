@@ -1,3 +1,4 @@
+import random
 from Hero import *
 from Coord import *
 from utils import getch
@@ -111,24 +112,32 @@ class Map(object):
     def corridor(self, start, end):
         startY=start
         startX=start
+        self.dig(start)
         if start.y<end.y:
-            for case in range(1,end.y-start.y):
-                startY.y=start.y+case
+            for case in range(0,end.y-start.y):
+                startY.y=startY.y+1
                 self.dig(startY)
         else:
-            for case in range(1,start.y-end.y):
-                startY.y=start.y-case
+            for case in range(0,start.y-end.y):
+                startY.y=startY.y-1
                 self.dig(startY)
         
         if start.x<end.x:
-            for case in range(1,end.x-start.x):
-                startX.x=start.x+case
+            for case in range(0,end.x-start.x):
+                startX.x=startX.x+1
                 self.dig(startX)
         else:
-            for case in range(1,start.x-end.x):
-                startX.x=start.x-case
+            for case in range(0,start.x-end.x):
+                startX.x=startX.x-1
                 self.dig(startX)
-
+                
+                
+    def reach(self):
+        salleDepart=random.choice(self._rooms)
+        salleArrive=random.choice(self._roomsToReach)
+        self.corridor(salleDepart.center(),salleArrive.center())
+        
+ 
         
     def move(self,objet,way):
         dep=Coord(self.pos(objet).x+way.x,self.pos(objet).y+way.y)
@@ -145,7 +154,29 @@ class Map(object):
                         self.rm(self.get(dep))
         
                         
-                    
+    def reachAllRooms(self):
+        self._rooms.append(self._roomsToReach[0])
+        self._roomsToReach.remove(self._roomsToReach[0])
+        while self._roomsToReach:
+            self.reach()
+           
+    def randRoom(self):
+        CoX1=random.randint(0,len(self)-3)
+        CoY1=random.randint(0,len(self)-3)
+        largeur=random.randint(3,8)
+        hauteur=random.randint(3,8)
+        CoX2=min(len(self)-1,largeur+CoX1)
+        CoY2=min(len(self)-1,hauteur+CoY1)
+        return Room(Coord(CoX1,CoY1),Coord(CoX2,CoY2))
+
+    
+    def generateRooms(self,n):
+        for i in range(n):
+            SalleACreer=self.randRoom()
+            if self.intersectNone(SalleACreer):
+                self.addRoom(SalleACreer)
+            i=i-1
+
 
          
     def play(self, hero='@'):

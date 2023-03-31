@@ -68,18 +68,18 @@ class Map(object):
             
     def rm(self,item):
         if type(item)==Coord:
-            self._mat[item.y][item.x]=Map().ground
+            self._mat[item.y][item.x]=Map.ground
             for (key, element) in self._elem.items():
                 if self._mat[item.y][item.x]==self._mat[element.y][element.x]:
                     del self._elem[key]
                     break
         else:
-            self._mat[self._elem[item].y][self._elem[item].x]=Map().ground
+            self._mat[self._elem[item].y][self._elem[item].x]=Map.ground
             for (key, element) in self._elem.items():
                 if self._mat[self._elem[item].y][self._elem[item].x]==self._mat[element.y][element.x]:
                     del self._elem[key]
                     break
-                
+               
                 
     def addRoom(self,room):
         horizontale=room.c2.x-room.c1.x+1
@@ -87,7 +87,7 @@ class Map(object):
         self._roomsToReach.append(room)
         for i in range(horizontale):
             for j in range(verticale):
-                self._mat[room.c1.y+j][room.c1.x+i]=Map().ground
+                self._mat[room.c1.y+j][room.c1.x+i]=Map.ground
                 
     
     def findRoom(self,coord):
@@ -107,7 +107,7 @@ class Map(object):
             return False
             
     def dig(self,coord):
-        self._mat[coord.y][coord.x]=Map().ground
+        self._mat[coord.y][coord.x]=Map.ground
         if self.findRoom(coord) is not False:
             self._rooms.append(self.findRoom(coord))
             self._roomsToReach.remove(self.findRoom(coord))
@@ -145,7 +145,7 @@ class Map(object):
     def move(self,objet,way):
         dep=Coord(self.pos(objet).x+way.x,self.pos(objet).y+way.y)
         if dep.x>=0 and dep.y>=0 and dep.x<self.size and dep.y<self.size:
-            if self.get(dep)==Map().ground:
+            if self.get(dep)==Map.ground:
                 self.rm(objet)
                 self.put(dep,objet)
             else:

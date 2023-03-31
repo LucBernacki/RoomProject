@@ -7,7 +7,7 @@ class Map(object):
     empty=" "
     ground="."
     dir={"z":Coord(0,-1),"s":Coord(0,1),"d":Coord(1,0), "q":Coord(-1,0)}
-    def __init__(self,size=20,pos=Coord(1,1),hero=None,SallesDispo=None,Salles=None):
+    def __init__(self,size=20,hero=None,SallesDispo=None,Salles=None,nbrooms=7):
         if hero == None:
             self._hero=Hero()
             self._hero.reset()
@@ -23,7 +23,10 @@ class Map(object):
             self._rooms=Salles
         self.size=size
         self._mat=[[Map.empty for i in range(self.size)] for i in range(self.size)]
-        self._elem={} #self._hero:pos
+        self.nbrooms=nbrooms
+        self.generateRooms(self.nbrooms)
+        self.reachAllRooms()
+        self._elem={self._hero:self._rooms[0].center()} #self._hero:pos
         for (key, element) in self._elem.items():
             self._mat[element.y][element.x]=key
 
@@ -175,7 +178,7 @@ class Map(object):
             SalleACreer=self.randRoom()
             if self.intersectNone(SalleACreer):
                 self.addRoom(SalleACreer)
-            i=i-1
+            
 
 
          

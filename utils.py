@@ -16,3 +16,4 @@ def getch():
         # Non-POSIX. Return msvcrt's (Windows') getch.
         import msvcrt
         return msvcrt.getch().decode('utf-8')
+   

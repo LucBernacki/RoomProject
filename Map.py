@@ -2,12 +2,12 @@ import random
 from Hero import *
 from Coord import *
 from utils import getch
-       
+      
 class Map(object):
     empty=" "
     ground="."
     dir={"z":Coord(0,-1),"s":Coord(0,1),"d":Coord(1,0), "q":Coord(-1,0)}
-    def __init__(self,size=20,hero=None,SallesDispo=None,Salles=None,nbrooms=7):
+    def __init__(self,size=20,hero=None,SallesDispo=None,Salles=None,nbrooms=None):
         if hero == None:
             self._hero=Hero()
             self._hero.reset()
@@ -23,7 +23,10 @@ class Map(object):
             self._rooms=Salles
         self.size=size
         self._mat=[[Map.empty for i in range(self.size)] for i in range(self.size)]
-        self.nbrooms=nbrooms
+        if nbrooms is None:
+            self.nbrooms=7
+        else:
+            self.nbrooms=nbrooms
         self.generateRooms(self.nbrooms)
         self.reachAllRooms()
         self._elem={self._hero:self._rooms[0].center()} #self._hero:pos

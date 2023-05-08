@@ -1,9 +1,156 @@
 import random
-from utils import getch
-from Coord import Coord
-from Hero import *
-from Room import Room
-from Element import Element
+import copy
+from utils import getch 
+
+class Coord(object):
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+    def __eq__(self,other):
+        if self.x==other.x and self.y==other.y :
+            return True
+        else:
+            return False
+    def __add__(self,other):
+        x=self.x+other.x
+        y=self.y+other.y
+        return Coord(x,y)
+    def __repr__(self):
+        coordonnees="<"+str(self.x)+","+str(self.y)+">"
+        return coordonnees
+        
+
+class Element(object):
+    def __init__(self,name,abbrv=None):
+        self._name=name
+        if not abbrv:
+            self._abbrv=name[0]
+        else:
+            self._abbrv=abbrv
+    def __repr__(self):
+        return self._abbrv
+        
+    def description(self):
+        return "<"+str(self._name)+">"
+        
+    def meet(self,hero):
+        raise NotImplementedError("Not implemented yet")
+
+        
+class Equipment(Element):
+    def __init__(self,name,abbrv=None):
+        Element.__init__(self,name,abbrv)
+    
+    def meet(self,hero):
+        hero.take(self)
+        theGame().addMessage("You pick up a "+str(self._name))
+        print(theGame().readMessages())
+        return True
+    
+       
+
+class Creature(Element):
+    def __init__(self,name,hp,abbrv=None,strength=1):
+        Element.__init__(self,name,abbrv)
+        self._hp=hp
+        self._strength=strength
+    def description(self):
+        return Element.description(self)+"("+str(self._hp)+")"
+    
+    def meet(self,other):
+        self._hp-=other._strength
+        theGame().addMessage("The "+str(other._name)+" hits the " + str(self.description()))
+        print(theGame().readMessages())
+        if self._hp<=0:
+            return True
+        else:
+            return False
+
+class Hero(Creature):
+    def __init__(self,name='Hero',hp=10,abbrv="@",strength=2,inventory=None):
+        Creature.__init__(self,name,hp,abbrv,strength)
+        if inventory is None:
+            self._inventory=[]
+        else:
+            self._inventory=inventory
+    def take(self,elem):
+        if isinstance(elem,Equipment)==False:
+            raise TypeError('Not an Element')
+        self._inventory.append(elem)
+    def description(self):
+        return Creature.description(self)+str(self._inventory)
+    
+        
+class Room(object):
+    def __init__(self,HautGauche,BasDroit):
+        self.c1=HautGauche
+        self.c2=BasDroit
+    
+    def __repr__(self):
+        return "["+str(self.c1)+", "+str(self.c2)+"]"
+    
+    def __contains__(self,objet):
+            if objet.x>=self.c1.x and objet.y>=self.c1.y and objet.x<=self.c2.x and objet.y<=self.c2.y:
+                return True
+            return False
+    
+    def center(self):
+        if self.c1.x==0:
+            centreX=self.c2.x
+            if (centreX%2)==0:
+                centreXF=centreX/2
+            centreXF=centreX//2
+        else:
+            centreX=self.c2.x-self.c1.x
+            if (centreX%2)==0:
+                centreXF=centreX/2+self.c1.x
+            centreXF=centreX//2+self.c1.x
+
+        if self.c1.y==0:
+            centreY=self.c2.y-self.c1.y
+            if (centreY%2)==0:
+                centreYF=centreY/2
+            centreYF=centreY//2
+        else:
+            centreY=self.c2.y-self.c1.y
+            if (centreY%2)==0:
+                centreYF=centreY/2+self.c1.y
+            centreYF=centreY//2+self.c1.y
+        
+        return Coord(int(centreXF),int(centreYF))
+    
+    def intersect(self,AutreSalle):
+        if AutreSalle.c1 in self or AutreSalle.c2 in self or Coord(AutreSalle.c2.x, AutreSalle.c1.y) in self or Coord(AutreSalle.c1.x, AutreSalle.c2.y) in self or self.c1 in AutreSalle or self.c2 in AutreSalle or Coord(self.c2.x, self.c1.y) in AutreSalle or Coord(self.c1.x, self.c2.y) in AutreSalle:
+            return True
+        return False
+        
+        
+    def randCoord(self):
+        X=random.randint(self.c1.x,self.c2.x)
+        Y=random.randint(self.c1.y,self.c2.y)
+        return Coord(X,Y)
+        
+    def randEmptyCoord(self,map):
+        stop=0
+        while stop==0:
+            elem=self.randCoord()
+            if elem==self.center() or map.get(elem)!=map.ground:
+                stop=0
+            else:
+                stop=1
+        return elem
+            
+        
+        
+    
+    def decorate(self,map):
+        map.put(self.randEmptyCoord(map),theGame().randEquipment())
+        map.put(self.randEmptyCoord(map),theGame().randMonster())
+        
+
+        
+
+
 
 class Map(object):
     empty=" "
@@ -211,3 +358,62 @@ class Map(object):
             self.move(self._hero, Map.dir[getch()])
         print("--- Game Over ---")
         
+        
+class Game(object):
+    equipments = { 0: [ Equipment("potion","!"), Equipment("gold","o") ], 1: [ Equipment("sword"), Equipment("bow") ], 2: [ Equipment("chainmail") ] }
+    monsters = { 0: [ Creature("Goblin",4), Creature("Bat",2,"W") ], 1: [ Creature("Ork",6,strength=2), Creature("Blob",10) ], 5: [ Creature("Dragon",20,strength=3) ] }
+    def __init__(self,hero=None,level=1):
+        if hero is None:
+            self._hero=Hero()
+        else:
+            self._hero=hero
+        self._level=level
+        self._floor=None
+        self._message=[]
+        
+    def buildFloor(self):
+        self._floor=Map(hero=self._hero)
+        
+        
+    def addMessage(self,msg):
+        self._message.append(msg)
+        
+        
+    def readMessages(self):
+        lecture=""
+        if self._message is False:
+            return ""
+        for message in self._message:
+            lecture+=str(message)+". "
+        self._message.clear()
+        return lecture
+        
+    def randElement(self,collection):
+        rarete=random.expovariate(1/self._level)
+        menagerie = sorted(collection)
+        for i in range(len(menagerie)):
+            if menagerie[i]<=rarete and ( menagerie[i]==menagerie[-1] or menagerie[i+1]>rarete):
+                menagerieChoisie=menagerie[i]
+               
+        
+        elementChoisi=random.choice(collection[menagerieChoisie])
+        elementChoisiMultiple=copy.copy(elementChoisi)
+        
+        return elementChoisiMultiple
+        
+        
+        
+    def randEquipment(self):
+        return self.randElement(Game.equipments)
+    
+    
+    def randMonster(self):
+        return self.randElement(Game.monsters)
+        
+        
+def theGame(game = Game()):
+    return game
+
+g = Game()
+g.buildFloor()
+Map.play(g._floor)

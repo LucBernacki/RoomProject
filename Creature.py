@@ -1,6 +1,5 @@
-from Element import *
-from Game import theGame
-
+from Element import Element
+import theGame
 
 class Creature(Element):
     def __init__(self,name,hp,abbrv=None,strength=1):
@@ -12,8 +11,9 @@ class Creature(Element):
     
     def meet(self,other):
         self._hp-=other._strength
-        theGame().addMessage("The "+str(other._name)+" hits the " + str(self.description()))
+        theGame.theGame().addMessage("The "+str(other._name)+" hits the " + str(self.description()))
         if self._hp<=0:
             return True
         else:
             return False
+       

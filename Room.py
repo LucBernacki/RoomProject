@@ -1,6 +1,6 @@
-from Coord import *
+import theGame
 import random
-
+from Coord import Coord
 class Room(object):
     def __init__(self,HautGauche,BasDroit):
         self.c1=HautGauche
@@ -64,8 +64,8 @@ class Room(object):
         
     
     def decorate(self,map):
-        map.put(self.randEmptyCoord(map),theGame().randEquipment())
-        map.put(self.randEmptyCoord(map),theGame().randMonster())
+        map.put(self.randEmptyCoord(map),theGame.theGame().randEquipment())
+        map.put(self.randEmptyCoord(map),theGame.theGame().randMonster())
         
 
         

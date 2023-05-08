@@ -1,8 +1,9 @@
-from Equipment import *
-from Creature import *
+from Coord import *
+from Element import *
+import Map 
 from Hero import *
-from Map import *
 import copy
+import random
 
 class Game(object):
     equipments = { 0: [ Equipment("potion","!"), Equipment("gold","o") ], 1: [ Equipment("sword"), Equipment("bow") ], 2: [ Equipment("chainmail") ] }
@@ -17,7 +18,7 @@ class Game(object):
         self._message=[]
         
     def buildFloor(self):
-        self._floor=Map(hero=self._hero)
+        self._floor=Map.Map(hero=self._hero)
         
         
     def addMessage(self,msg):
@@ -55,8 +56,7 @@ class Game(object):
     def randMonster(self):
         return self.randElement(Game.monsters)
     
-    
-def theGame(game = Game()):
-    return game
+   
+
         
-        
+      

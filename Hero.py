@@ -1,5 +1,5 @@
-from Creature import *
-from Equipment import *
+from Equipment import Equipment
+from Creature import Creature
 
 class Hero(Creature):
     def __init__(self,name='Hero',hp=10,abbrv="@",strength=2,inventory=None):

@@ -1,4 +1,3 @@
-from Coord import Coord
 class Element(object):
     def __init__(self,name,abbrv=None):
         self._name=name
@@ -14,5 +13,3 @@ class Element(object):
         
     def meet(self,hero):
         raise NotImplementedError("Not implemented yet")
-        hero.take(self)
-        return True
